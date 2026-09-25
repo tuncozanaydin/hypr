@@ -40,21 +40,24 @@ write_state() {
 
 # Make every workspace that has windows match the saved state. Workspace rules
 # only reach workspaces without an orientation of their own, and Hyprland keeps
-# a workspace's orientation once it has been set, so visit each one (single
-# batch, animations off) and set it explicitly; then return to where we were.
+# a workspace's orientation once it has been set, so visit each one (animations
+# off) and set it explicitly, then return to where we were.
+# Switches are separate hyprctl calls: inside one --batch Hyprland still sees
+# the old current workspace, and "switch to the current workspace" means "go to
+# the previous one", which landed on the wrong workspace.
 sync() {
     dwindle_on && return 0
-    local here focus anim cmds="" ws o
+    local here anim ws o
     here=$(active_ws)
-    focus=$(hyprctl activewindow -j | python3 -c 'import json,sys; print(json.load(sys.stdin).get("address", ""))' 2>/dev/null || true)
     anim=$(hyprctl getoption animations:enabled -j | python3 -c 'import json,sys; print(json.load(sys.stdin)["int"])')
+    hyprctl keyword animations:enabled 0 >/dev/null
     for ws in $(hyprctl workspaces -j | python3 -c 'import json,sys; print(" ".join(str(w["id"]) for w in json.load(sys.stdin) if w["id"] > 0 and w["windows"] > 0))'); do
         if is_left "$ws"; then o=left; else o=center; fi
-        cmds+="dispatch workspace $ws ; dispatch layoutmsg orientation$o ; "
+        [[ $ws == "$here" ]] || hyprctl dispatch workspace "$ws" >/dev/null
+        hyprctl dispatch layoutmsg "orientation$o" >/dev/null
     done
-    cmds+="dispatch workspace $here ; "
-    [[ -z $focus ]] || cmds+="dispatch focuswindow address:$focus ; "
-    hyprctl --batch "keyword animations:enabled 0 ; ${cmds}keyword animations:enabled $anim" >/dev/null
+    [[ $(active_ws) == "$here" ]] || hyprctl dispatch workspace "$here" >/dev/null
+    hyprctl keyword animations:enabled "$anim" >/dev/null
 }
 
 toggle() {

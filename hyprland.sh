@@ -74,6 +74,11 @@ PACKAGES=(
     # Desktop components
     kitty waybar fuzzel mako-notifier hyprpaper hyprlock hypridle hyprpolkitagent
     network-manager-gnome pavucontrol nautilus
+    # Hyprland's runtime dialogs (hyprland-dialog etc.); Ubuntu ships these as
+    # hyprland-qtutils. Without it Hyprland warns "hyprland-guiutils missing".
+    hyprland-qtutils
+    # Bluetooth (tray applet + manager; audio via PipeWire's bluez plugin)
+    bluez blueman libspa-0.2-bluetooth
     # Screenshots, clipboard, media/brightness keys
     wl-clipboard grim slurp brightnessctl playerctl
     # Audio, X11 apps, Qt Wayland, keyring
@@ -142,6 +147,7 @@ install_packages() {
 
     log "Installing Hyprland and desktop components"
     sudo apt-get install -y "${PACKAGES[@]}"
+    sudo systemctl enable --now bluetooth
 
     if [[ ! -e /etc/X11/default-display-manager ]]; then
         log "No display manager found; installing GDM"

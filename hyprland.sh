@@ -7,7 +7,7 @@
 # Log in by picking "Hyprland" on the GDM login screen (gear icon).
 #
 # Usage:  bash hyprland.sh [options]
-#   or:   curl -fsSL https://raw.githubusercontent.com/tuncozanaydin/hypr/HEAD/hyprland.sh | bash -s -- [options]
+#   or:   wget -qO- https://raw.githubusercontent.com/tuncozanaydin/hypr/HEAD/hyprland.sh | bash -s -- [options]
 #
 #   --scale N           Monitor scale for this machine (repo default: 1.25)
 #   --default-session   Make Hyprland the default login session for this user
